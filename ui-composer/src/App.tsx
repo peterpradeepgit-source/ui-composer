@@ -8,9 +8,16 @@ registerDefaults();
 export default function App() {
   return (
     <BuilderProvider initialLayout={layoutDemo}>
-      <div style={{ display: "flex", height: "100vh" }}>
+      <div style={{ display: "flex", height: "100vh", width: "100%" }}>
         <ComponentPalette />
-        <Canvas />
+        <div
+          style={{
+            flex: 1,
+            overflow: "auto",
+          }}
+        >
+          <Canvas />
+        </div>
       </div>
     </BuilderProvider>
   );

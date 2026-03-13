@@ -6,6 +6,9 @@ export function Container({ children }: { children?: React.ReactNode }) {
         border: "1px dashed #ccc",
         borderRadius: "4px",
         backgroundColor: "#f9f9f9",
+        gap: "10px",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {children}
