@@ -30,6 +30,47 @@ export function findParentId(
   return null;
 }
 
+export function findParent(
+  root: BuilderNode,
+  nodeId: string,
+): { parent: BuilderNode | null; index: number } {
+  for (let i = 0; i < root.children.length; i++) {
+    const child = root.children[i];
+    if (child.id === nodeId) {
+      return { parent: root, index: i };
+    }
+    const result = findParent(child, nodeId);
+    if (result.parent) {
+      return result;
+    }
+  }
+  return { parent: null, index: -1 };
+}
+
+export function insertBefore(
+  root: BuilderNode,
+  targetId: string,
+  newNode: BuilderNode,
+) {
+  const { parent, index } = findParent(root, targetId);
+  if (!parent) {
+    throw new Error("Parent not found");
+  }
+  parent.children.splice(index, 0, newNode);
+}
+
+export function insertAfter(
+  root: BuilderNode,
+  targetId: string,
+  newNode: BuilderNode,
+) {
+  const { parent, index } = findParent(root, targetId);
+  if (!parent) {
+    throw new Error("Parent not found");
+  }
+  parent.children.splice(index + 1, 0, newNode);
+}
+
 export function insertNode(
   root: BuilderNode,
   parentId: string,
@@ -70,35 +111,36 @@ export function updateNode(
 export function removeNode(
   root: BuilderNode,
   nodeId: string,
-  parentId: string,
-): boolean {
-  const parentNode = findNode(root, parentId);
-  if (!parentNode) {
-    return false;
+): BuilderNode | null {
+  for (let i = 0; i < root.children.length; i++) {
+    const child = root.children[i];
+    if (child.id === nodeId) {
+      return root.children.splice(i, 1)[0];
+    }
+
+    const removed = removeNode(child, nodeId);
+    if (removed) {
+      return removed;
+    }
   }
-  const index = parentNode.children.findIndex((child) => child.id === nodeId);
-  if (index === -1) {
-    return false;
-  }
-  parentNode.children.splice(index, 1);
-  return true;
+  return null;
 }
 
 export function moveNode(
   root: BuilderNode,
-  nodeId: string,
-  newParentId: string,
-): boolean {
-  const node = findNode(root, nodeId);
-  const newParentNode = findNode(root, newParentId);
-  if (!node || !newParentNode) {
-    return false;
+  draggedId: string,
+  targetId: string,
+  position: "before" | "after" | "inside",
+) {
+  const draggedNode = removeNode(root, draggedId);
+  if (!draggedNode) {
+    throw new Error("Dragged node not found");
   }
-  const parentId = findParentId(root, nodeId);
-  if (!parentId) {
-    return false;
+  if (position === "inside") {
+    insertNode(root, targetId, draggedNode);
+  } else if (position === "before") {
+    insertBefore(root, targetId, draggedNode);
+  } else if (position === "after") {
+    insertAfter(root, targetId, draggedNode);
   }
-  removeNode(root, nodeId, parentId);
-  newParentNode.children.push(node);
-  return true;
 }
