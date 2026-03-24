@@ -1,12 +1,14 @@
 import { createContext, useContext, useState } from "react";
-import { createHistory, type HistoryState } from "../core/history";
+import { applyChange, createHistory, type HistoryState } from "../core/history";
 import type { BuilderNode } from "../core/types";
+import { updateNodeRecursive } from "../core/tree";
 
 type BuilderContextType = {
   history: HistoryState;
   setHistory: React.Dispatch<React.SetStateAction<HistoryState>>;
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
+  updateNodeProperty: (nodeId: string, newProps: Record<string, any>) => void;
 };
 
 const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
@@ -23,9 +25,22 @@ export const BuilderProvider = ({
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const updateNodeProperty = (
+    nodeId: string,
+    newProps: Record<string, any>,
+  ) => {
+    const newTree = updateNodeRecursive(history.present, nodeId, newProps);
+    setHistory(applyChange(history, newTree));
+  };
   return (
     <BuilderContext.Provider
-      value={{ history, setHistory, selectedId, setSelectedId }}
+      value={{
+        history,
+        setHistory,
+        selectedId,
+        setSelectedId,
+        updateNodeProperty,
+      }}
     >
       {children}
     </BuilderContext.Provider>

@@ -144,3 +144,31 @@ export function moveNode(
     insertAfter(root, targetId, draggedNode);
   }
 }
+
+export function updateNodeProps(tree: BuilderNode, id: string, newProps: Record<string, any>) {
+  if (tree.id === id) {
+    tree.props = { ...tree.props, ...newProps };
+    return true;
+  }
+  for (const child of tree.children) {
+    const updated = updateNodeProps(child, id, newProps);
+    if (updated) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function updateNodeRecursive(
+  node: BuilderNode,
+  nodeId: string,
+  newProps: Record<string, any>,
+): BuilderNode {
+    if (node.id === nodeId) {
+      return { ...node, props: { ...node.props, ...newProps } };
+    }
+    if (node.children.length > 0) {
+      return { ...node, children: node.children.map((child) => updateNodeRecursive(child, nodeId, newProps)) };
+    }
+    return node;
+}

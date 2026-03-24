@@ -1,4 +1,5 @@
 import React from "react";
+import type { PropertyScehema } from "../editor/propertyTypes";
 
 export type ComponentMeta = {
   type: string;
@@ -6,9 +7,11 @@ export type ComponentMeta = {
   defaultProps?: Record<string, any>;
   allowedChildren?: string[]; // List of allowed child component types
   icon?: React.ReactNode; // Optional icon for the component
+  properties?: PropertyScehema[]; // List of properties for the component
+
 };
 
-export const defaultComponentMeta: ComponentMeta[] = [
+export const componentMeta: ComponentMeta[] = [
   {
     type: "Container",
     label: "Container",
@@ -19,12 +22,26 @@ export const defaultComponentMeta: ComponentMeta[] = [
     defaultProps: {
       children: "Button",
     },
+    properties: [
+      {
+        name: "children",
+        label: "Text",
+        type: "text",
+      },
+    ],
   },
   {
     type: "Text",
     label: "Text",
     defaultProps: {
-      children: "Text",
+      text: "change text here",
     },
+    properties: [
+      {
+        name: "text",
+        label: "Text",
+        type: "text",
+      },
+    ],
   },
 ];

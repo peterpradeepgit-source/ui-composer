@@ -1,0 +1,72 @@
+.layout{
+    display: flex;
+    height: 100vh;
+}
+
+.property-panel{
+    width: 300px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    box-sizing: border-box;
+    border-left: 1px solid #ddd;
+}
+
+.component-palette {
+    width: 200px;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+}
+
+.component-item {
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: grab;
+}
+
+.canvas {
+    flex: 1;
+    padding: 20px;
+    position: relative;
+    background-color: #fff;
+}
+
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+}
+
+.container {
+    padding: 20px;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.node-wrapper {
+    position: relative;
+    background: transparent;
+}
+
+.node-wrapper.selected {
+    outline: 2px solid blue;
+}
+
+.node-wrapper.hover {
+    outline: 1px dashed gray;
+}
+
+.text {
+    padding: 10px;
+    border: 1px dashed #aaa;
+    border-radius: 4px;
+    background-color: #fefefe;
+}

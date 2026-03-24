@@ -1,24 +1,16 @@
-import { defaultComponentMeta } from "../core/componentMeta";
+import { componentMeta } from "../core/componentMeta";
 
 export function ComponentPalette() {
   return (
-    <div
-      style={{ width: "200px", padding: "10px", borderRight: "1px solid #ddd" }}
-    >
+    <div className="component-palette">
       <h3>Components</h3>
-      {defaultComponentMeta.map((comp) => (
+      {componentMeta.map((comp) => (
         <div
           key={comp.type}
+          className="component-item"
           draggable
           onDragStart={(e) => {
             e.dataTransfer.setData("component-type", comp.type);
-          }}
-          style={{
-            padding: "5px",
-            marginBottom: "5px",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            cursor: "grab",
           }}
         >
           {comp.label}

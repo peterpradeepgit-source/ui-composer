@@ -73,20 +73,12 @@ export function NodeWrapper({ node, children }: props) {
   return (
     <div
       data-node-id={node.id}
+      className={`node-wrapper ${isSeelected ? "selected" : ""} ${hover ? "hover" : ""} ${dropHover ? "drop-hover" : ""}`}
       onClick={(e) => {
         e.stopPropagation();
         setSelectedId(node.id);
       }}
-      style={{
-        outline: isSeelected
-          ? "2px solid blue"
-          : hover
-            ? "1px dashed gray"
-            : "none",
-        position: "relative",
-        ...indicatorStyle,
-        background: dropHover ? "rgba(0,0,255,0.1)" : "transparent",
-      }}
+      style={indicatorStyle}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onDragOver={(e) => {
