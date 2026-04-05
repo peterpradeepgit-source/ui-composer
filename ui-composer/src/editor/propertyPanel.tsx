@@ -1,4 +1,4 @@
-import { useBuilder } from "../builder/BuilderContext";
+import { useBuilder } from "../builder/useBuilder";
 import { componentMeta } from "../core/componentMeta";
 import { findNode } from "../core/tree";
 import PropertyField from "./propertyField";
@@ -18,7 +18,6 @@ export function PropertyPanel() {
     return <div className="property-panel">Selected component not found</div>;
   }
   const meta = componentMeta.find((m) => m.type === selectedNode.type);
-  const schema = meta?.properties || [];
 
   if (!meta) {
     return (

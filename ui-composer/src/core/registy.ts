@@ -1,12 +1,15 @@
-export type ComponentConfig = {
-  component: React.ComponentType<any>;
+export type ComponentConfig<TProps extends object = Record<string, unknown>> = {
+  component: React.ComponentType<TProps>;
   importPath: string;
 };
 
 const registry: Record<string, ComponentConfig> = {};
 
-export function registerComponent(name: string, config: ComponentConfig) {
-  registry[name] = config;
+export function registerComponent<TProps extends object>(
+  name: string,
+  config: ComponentConfig<TProps>,
+) {
+  registry[name] = config as ComponentConfig;
 }
 
 export function getComponentConfig(name: string): ComponentConfig | undefined {

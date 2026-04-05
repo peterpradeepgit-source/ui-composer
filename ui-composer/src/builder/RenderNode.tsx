@@ -2,7 +2,12 @@ import { getComponentConfig } from "../core/registy";
 import type { BuilderNode } from "../core/types";
 import { NodeWrapper } from "./NodeWrapper";
 
-export function RenderNode({ node }: { node: BuilderNode }) {
+type Props = {
+  node: BuilderNode;
+  isRoot?: boolean;
+};
+
+export function RenderNode({ node, isRoot = false }: Props) {
   const componentConfig = getComponentConfig(node.type);
   if (!componentConfig) {
     return <div style={{ color: "red" }}>Unknown component: {node.type}</div>;
@@ -16,7 +21,7 @@ export function RenderNode({ node }: { node: BuilderNode }) {
       : propChildren;
 
   return (
-    <NodeWrapper node={node}>
+    <NodeWrapper node={node} isDraggable={!isRoot}>
       <Component {...restProps}>{renderedChildren}</Component>
     </NodeWrapper>
   );

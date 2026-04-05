@@ -1,9 +1,10 @@
+import type { NodePropValue } from "../core/types";
 import type { PropertyScehema } from "./propertyTypes";
 
 type Props = {
   schema: PropertyScehema;
-  value: any;
-  onChange: (newValue: any) => void;
+  value: NodePropValue;
+  onChange: (newValue: NodePropValue) => void;
 };
 
 export default function PropertyField({ schema, value, onChange }: Props) {
@@ -12,7 +13,7 @@ export default function PropertyField({ schema, value, onChange }: Props) {
       return (
         <input
           type="text"
-          value={value || ""}
+          value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
         />
       );
@@ -20,7 +21,7 @@ export default function PropertyField({ schema, value, onChange }: Props) {
       return (
         <input
           type="number"
-          value={value || 0}
+          value={typeof value === "number" ? value : 0}
           onChange={(e) => onChange(Number(e.target.value))}
         />
       );
@@ -28,13 +29,16 @@ export default function PropertyField({ schema, value, onChange }: Props) {
       return (
         <input
           type="color"
-          value={value || "#000000"}
+          value={typeof value === "string" ? value : "#000000"}
           onChange={(e) => onChange(e.target.value)}
         />
       );
     case "select":
       return (
-        <select value={value || ""} onChange={(e) => onChange(e.target.value)}>
+        <select
+          value={typeof value === "string" ? value : ""}
+          onChange={(e) => onChange(e.target.value)}
+        >
           {schema.options?.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -45,7 +49,7 @@ export default function PropertyField({ schema, value, onChange }: Props) {
     case "textarea":
       return (
         <textarea
-          value={value || ""}
+          value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
         />
       );
@@ -53,7 +57,7 @@ export default function PropertyField({ schema, value, onChange }: Props) {
       return (
         <input
           type="checkbox"
-          checked={!!value}
+          checked={Boolean(value)}
           onChange={(e) => onChange(e.target.checked)}
         />
       );
@@ -77,33 +81,43 @@ export default function PropertyField({ schema, value, onChange }: Props) {
       return (
         <input
           type="range"
-          value={value || 0}
+          value={typeof value === "number" ? value : 0}
           min={schema.min}
           max={schema.max}
           step={schema.step || 1}
           onChange={(e) => onChange(Number(e.target.value))}
         />
       );
-    case "spacing":
+    case "spacing": {
+      const spacingValue =
+        typeof value === "object" && value !== null && !Array.isArray(value)
+          ? (value as Record<string, NodePropValue>)
+          : {};
+
       return (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
           {["top", "right", "bottom", "left"].map((side) => (
             <input
               type="number"
               key={side}
-              value={value?.[side] || 0}
+              value={
+                typeof spacingValue[side] === "number"
+                  ? Number(spacingValue[side])
+                  : 0
+              }
               placeholder={side}
               onChange={(e) =>
-                onChange({ ...value, [side]: Number(e.target.value) })
+                onChange({ ...spacingValue, [side]: Number(e.target.value) })
               }
             />
           ))}
         </div>
       );
+    }
     case "style":
       return (
         <textarea
-          value={value || ""}
+          value={typeof value === "string" ? value : ""}
           placeholder="e.g. color: red; margin: 10px;"
           onChange={(e) => onChange(e.target.value)}
         />
@@ -112,7 +126,7 @@ export default function PropertyField({ schema, value, onChange }: Props) {
       return (
         <input
           type="text"
-          value={value || ""}
+          value={typeof value === "string" ? value : ""}
           placeholder="Image URL"
           onChange={(e) => onChange(e.target.value)}
         />
@@ -124,7 +138,7 @@ export default function PropertyField({ schema, value, onChange }: Props) {
           placeholder="Enter JSON"
           onChange={(e) => {
             try {
-              const parsed = JSON.parse(e.target.value);
+              const parsed = JSON.parse(e.target.value) as NodePropValue;
               onChange(parsed);
             } catch {
               console.warn("Invalid JSON");

@@ -1,10 +1,11 @@
 import React from "react";
 import type { PropertyScehema } from "../editor/propertyTypes";
+import type { NodeProps } from "./types";
 
 export type ComponentMeta = {
   type: string;
   label: string;
-  defaultProps?: Record<string, any>;
+  defaultProps?: NodeProps;
   allowedChildren?: string[]; // List of allowed child component types
   icon?: React.ReactNode; // Optional icon for the component
   properties?: PropertyScehema[]; // List of properties for the component

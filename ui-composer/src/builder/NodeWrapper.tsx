@@ -1,19 +1,23 @@
 import { useState } from "react";
 import type { BuilderNode } from "../core/types";
-import { useBuilder } from "./BuilderContext";
 import { componentRules } from "../core/componentRules";
-import { nanoid } from "nanoid";
 import { applyChange } from "../core/history";
-import { insertAfter, insertBefore, insertNode, moveNode } from "../core/tree";
+import { applyDrop, getDropPosition } from "./drop.ts";
+import { useBuilder } from "./useBuilder";
 
-type props = {
+type Props = {
   node: BuilderNode;
   children: React.ReactNode;
+  isDraggable?: boolean;
 };
 
-export function NodeWrapper({ node, children }: props) {
+export function NodeWrapper({
+  node,
+  children,
+  isDraggable = true,
+}: Props) {
   const { selectedId, setSelectedId, history, setHistory } = useBuilder();
-  const isSeelected = selectedId === node.id;
+  const isSelected = selectedId === node.id;
   const [hover, setHover] = useState(false);
   const [dropHover, setDropHover] = useState(false);
   const [dropPosition, setDropPosition] = useState<
@@ -23,57 +27,51 @@ export function NodeWrapper({ node, children }: props) {
 
   const indicatorStyle =
     dropPosition === "before"
-      ? {
-          borderTop: "2px solid #3b83f6",
-        }
+      ? { borderTop: "2px solid #3b83f6" }
       : dropPosition === "after"
-        ? {
-            borderBottom: "2px solid #3b83f6",
-          }
+        ? { borderBottom: "2px solid #3b83f6" }
         : dropPosition === "inside" && canDrop
-          ? {
-              backgroundColor: "rgba(59, 131, 246, 0.1)",
-            }
+          ? { backgroundColor: "rgba(59, 131, 246, 0.1)" }
           : {};
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     e.stopPropagation();
 
-    const type = e.dataTransfer.getData("component-type");
+    const componentType = e.dataTransfer.getData("component-type");
     const draggedNodeId = e.dataTransfer.getData("node-id");
-    const newTree = structuredClone(history.present);
 
-    if (!type) return;
-
-    const newNode = {
-      id: nanoid(),
-      type,
-      props: {},
-      children: [],
-    };
-
-    if (dropPosition === "inside") {
-      if (!canDrop) return;
-      insertNode(newTree, node.id, newNode);
-    } else if (dropPosition === "before") {
-      insertBefore(newTree, node.id, newNode);
-    } else if (dropPosition === "after") {
-      insertAfter(newTree, node.id, newNode);
+    if (!componentType && !draggedNodeId) {
+      return;
     }
-    if (draggedNodeId === node.id) return; // Prevent dropping on itself
-    if (draggedNodeId && draggedNodeId !== node.id) {
-      // Handle reordering existing node
-      moveNode(newTree, draggedNodeId, node.id, dropPosition ?? "inside");
+
+    const newTree = applyDrop({
+      tree: history.present,
+      targetNode: node,
+      dropPosition,
+      canDropInside: Boolean(canDrop),
+      payload: {
+        componentType: componentType || undefined,
+        draggedNodeId: draggedNodeId || undefined,
+      },
+    });
+
+    if (newTree === history.present) {
+      setDropPosition(null);
+      setDropHover(false);
+      return;
     }
+
     setHistory(applyChange(history, newTree));
     setDropPosition(null);
     setDropHover(false);
   }
+
   return (
     <div
       data-node-id={node.id}
-      className={`node-wrapper ${isSeelected ? "selected" : ""} ${hover ? "hover" : ""} ${dropHover ? "drop-hover" : ""}`}
+      draggable={isDraggable}
+      className={`node-wrapper ${isSelected ? "selected" : ""} ${hover ? "hover" : ""} ${dropHover ? "drop-hover" : ""}`}
       onClick={(e) => {
         e.stopPropagation();
         setSelectedId(node.id);
@@ -84,17 +82,11 @@ export function NodeWrapper({ node, children }: props) {
       onDragOver={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
+        setDropHover(true);
 
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         const offsetY = e.clientY - rect.top;
-        const height = rect.height;
-        if (offsetY < height * 0.25) {
-          setDropPosition("before");
-        } else if (offsetY > height * 0.75) {
-          setDropPosition("after");
-        } else {
-          if (canDrop) setDropPosition("inside");
-        }
+        setDropPosition(getDropPosition(offsetY, rect.height, Boolean(canDrop)));
       }}
       onDragLeave={(e) => {
         e.preventDefault();
@@ -103,6 +95,11 @@ export function NodeWrapper({ node, children }: props) {
       }}
       onDrop={handleDrop}
       onDragStart={(e) => {
+        if (!isDraggable) {
+          e.preventDefault();
+          return;
+        }
+
         e.stopPropagation();
         e.dataTransfer.setData("node-id", node.id);
       }}

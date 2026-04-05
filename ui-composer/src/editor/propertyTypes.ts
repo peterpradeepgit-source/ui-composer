@@ -1,3 +1,5 @@
+import type { NodePropValue } from "../core/types";
+
 export type PropertyType =
   | "text"
   | "number"
@@ -16,7 +18,7 @@ export interface PropertyScehema {
   name: string;
   label: string;
   type: PropertyType;
-  defaultValue?: any;
+  defaultValue?: NodePropValue;
   options?: string[]; // For select type
   group?: string; // Optional group name for organizing properties
   description?: string;

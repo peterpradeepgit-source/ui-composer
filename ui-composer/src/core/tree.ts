@@ -1,15 +1,17 @@
-import type { BuilderNode } from "./types";
+import type { BuilderNode, NodeProps } from "./types";
 
 export function findNode(node: BuilderNode, id: string): BuilderNode | null {
   if (node.id === id) {
     return node;
   }
+
   for (const child of node.children) {
     const found = findNode(child, id);
     if (found) {
       return found;
     }
   }
+
   return null;
 }
 
@@ -21,109 +23,185 @@ export function findParentId(
   if (node.id === childId) {
     return parentId;
   }
+
   for (const child of node.children) {
     const foundParentId = findParentId(child, childId, node.id);
     if (foundParentId) {
       return foundParentId;
     }
   }
+
   return null;
 }
 
-export function findParent(
+function insertNodeWithStatus(
   root: BuilderNode,
-  nodeId: string,
-): { parent: BuilderNode | null; index: number } {
-  for (let i = 0; i < root.children.length; i++) {
-    const child = root.children[i];
-    if (child.id === nodeId) {
-      return { parent: root, index: i };
-    }
-    const result = findParent(child, nodeId);
-    if (result.parent) {
-      return result;
-    }
+  parentId: string,
+  newNode: BuilderNode,
+): { tree: BuilderNode; inserted: boolean } {
+  if (root.id === parentId) {
+    return {
+      tree: { ...root, children: [...root.children, newNode] },
+      inserted: true,
+    };
   }
-  return { parent: null, index: -1 };
+
+  let inserted = false;
+  const children = root.children.map((child) => {
+    if (inserted) {
+      return child;
+    }
+
+    const updated = insertNodeWithStatus(child, parentId, newNode);
+    if (updated.inserted) {
+      inserted = true;
+      return updated.tree;
+    }
+
+    return child;
+  });
+
+  if (!inserted) {
+    return { tree: root, inserted: false };
+  }
+
+  return { tree: { ...root, children }, inserted: true };
+}
+
+function insertSiblingWithStatus(
+  root: BuilderNode,
+  targetId: string,
+  newNode: BuilderNode,
+  mode: "before" | "after",
+): { tree: BuilderNode; inserted: boolean } {
+  const targetIndex = root.children.findIndex((child) => child.id === targetId);
+  if (targetIndex !== -1) {
+    const children = [...root.children];
+    const insertIndex = mode === "before" ? targetIndex : targetIndex + 1;
+    children.splice(insertIndex, 0, newNode);
+    return { tree: { ...root, children }, inserted: true };
+  }
+
+  let inserted = false;
+  const children = root.children.map((child) => {
+    if (inserted) {
+      return child;
+    }
+
+    const updated = insertSiblingWithStatus(child, targetId, newNode, mode);
+    if (updated.inserted) {
+      inserted = true;
+      return updated.tree;
+    }
+
+    return child;
+  });
+
+  if (!inserted) {
+    return { tree: root, inserted: false };
+  }
+
+  return { tree: { ...root, children }, inserted: true };
 }
 
 export function insertBefore(
   root: BuilderNode,
   targetId: string,
   newNode: BuilderNode,
-) {
-  const { parent, index } = findParent(root, targetId);
-  if (!parent) {
-    throw new Error("Parent not found");
+): BuilderNode {
+  const result = insertSiblingWithStatus(root, targetId, newNode, "before");
+  if (!result.inserted) {
+    throw new Error("Target not found");
   }
-  parent.children.splice(index, 0, newNode);
+
+  return result.tree;
 }
 
 export function insertAfter(
   root: BuilderNode,
   targetId: string,
   newNode: BuilderNode,
-) {
-  const { parent, index } = findParent(root, targetId);
-  if (!parent) {
-    throw new Error("Parent not found");
+): BuilderNode {
+  const result = insertSiblingWithStatus(root, targetId, newNode, "after");
+  if (!result.inserted) {
+    throw new Error("Target not found");
   }
-  parent.children.splice(index + 1, 0, newNode);
+
+  return result.tree;
 }
 
 export function insertNode(
   root: BuilderNode,
   parentId: string,
   newNode: BuilderNode,
-): BuilderNode | null {
-  // Return a new tree with the node inserted. Do not mutate the original tree.
-  if (root.id === parentId) {
-    return { ...root, children: [...root.children, newNode] };
+): BuilderNode {
+  const result = insertNodeWithStatus(root, parentId, newNode);
+  if (!result.inserted) {
+    throw new Error("Parent not found");
   }
 
-  let inserted = false;
-  const newChildren = root.children.map((child) => {
-    if (inserted) return child;
-    const updatedChild = insertNode(child, parentId, newNode);
-    if (updatedChild) {
-      inserted = true;
-      return updatedChild;
-    }
-    return child;
-  });
-
-  return inserted ? { ...root, children: newChildren } : null;
+  return result.tree;
 }
 
 export function updateNode(
   root: BuilderNode,
   nodeId: string,
-  newProps: Record<string, any>,
-): boolean {
-  const node = findNode(root, nodeId);
-  if (!node) {
-    return false;
+  newProps: NodeProps,
+): BuilderNode {
+  return updateNodeRecursive(root, nodeId, newProps);
+}
+
+function removeNodeWithStatus(
+  root: BuilderNode,
+  nodeId: string,
+): { tree: BuilderNode; removedNode: BuilderNode | null } {
+  const targetIndex = root.children.findIndex((child) => child.id === nodeId);
+  if (targetIndex !== -1) {
+    const children = [...root.children];
+    const [removedNode] = children.splice(targetIndex, 1);
+    return { tree: { ...root, children }, removedNode };
   }
-  node.props = { ...node.props, ...newProps };
-  return true;
+
+  let removedNode: BuilderNode | null = null;
+  const children = root.children.map((child) => {
+    if (removedNode) {
+      return child;
+    }
+
+    const updated = removeNodeWithStatus(child, nodeId);
+    if (updated.removedNode) {
+      removedNode = updated.removedNode;
+      return updated.tree;
+    }
+
+    return child;
+  });
+
+  if (!removedNode) {
+    return { tree: root, removedNode: null };
+  }
+
+  return { tree: { ...root, children }, removedNode };
 }
 
 export function removeNode(
   root: BuilderNode,
   nodeId: string,
-): BuilderNode | null {
-  for (let i = 0; i < root.children.length; i++) {
-    const child = root.children[i];
-    if (child.id === nodeId) {
-      return root.children.splice(i, 1)[0];
-    }
+): { tree: BuilderNode; removedNode: BuilderNode | null } {
+  return removeNodeWithStatus(root, nodeId);
+}
 
-    const removed = removeNode(child, nodeId);
-    if (removed) {
-      return removed;
-    }
+function isDescendant(
+  root: BuilderNode,
+  ancestorId: string,
+  targetId: string,
+): boolean {
+  const ancestor = findNode(root, ancestorId);
+  if (!ancestor) {
+    return false;
   }
-  return null;
+
+  return findNode(ancestor, targetId) !== null;
 }
 
 export function moveNode(
@@ -131,44 +209,61 @@ export function moveNode(
   draggedId: string,
   targetId: string,
   position: "before" | "after" | "inside",
-) {
-  const draggedNode = removeNode(root, draggedId);
-  if (!draggedNode) {
+): BuilderNode {
+  if (draggedId === targetId || root.id === draggedId) {
+    return root;
+  }
+
+  if (isDescendant(root, draggedId, targetId)) {
+    return root;
+  }
+
+  const removal = removeNode(root, draggedId);
+  if (!removal.removedNode) {
     throw new Error("Dragged node not found");
   }
+
   if (position === "inside") {
-    insertNode(root, targetId, draggedNode);
-  } else if (position === "before") {
-    insertBefore(root, targetId, draggedNode);
-  } else if (position === "after") {
-    insertAfter(root, targetId, draggedNode);
+    return insertNode(removal.tree, targetId, removal.removedNode);
   }
+
+  if (position === "before") {
+    return insertBefore(removal.tree, targetId, removal.removedNode);
+  }
+
+  return insertAfter(removal.tree, targetId, removal.removedNode);
 }
 
-export function updateNodeProps(tree: BuilderNode, id: string, newProps: Record<string, any>) {
-  if (tree.id === id) {
-    tree.props = { ...tree.props, ...newProps };
-    return true;
-  }
-  for (const child of tree.children) {
-    const updated = updateNodeProps(child, id, newProps);
-    if (updated) {
-      return true;
-    }
-  }
-  return false;
+export function updateNodeProps(
+  tree: BuilderNode,
+  id: string,
+  newProps: NodeProps,
+): BuilderNode {
+  return updateNodeRecursive(tree, id, newProps);
 }
 
 export function updateNodeRecursive(
   node: BuilderNode,
   nodeId: string,
-  newProps: Record<string, any>,
+  newProps: NodeProps,
 ): BuilderNode {
-    if (node.id === nodeId) {
-      return { ...node, props: { ...node.props, ...newProps } };
-    }
-    if (node.children.length > 0) {
-      return { ...node, children: node.children.map((child) => updateNodeRecursive(child, nodeId, newProps)) };
-    }
+  if (node.id === nodeId) {
+    return { ...node, props: { ...node.props, ...newProps } };
+  }
+
+  if (node.children.length === 0) {
     return node;
+  }
+
+  let changed = false;
+  const children = node.children.map((child) => {
+    const updatedChild = updateNodeRecursive(child, nodeId, newProps);
+    if (updatedChild !== child) {
+      changed = true;
+    }
+
+    return updatedChild;
+  });
+
+  return changed ? { ...node, children } : node;
 }
