@@ -21,8 +21,10 @@ export function RenderNode({ node, isRoot = false }: Props) {
       : propChildren;
 
   return (
-    <NodeWrapper node={node} isDraggable={!isRoot}>
-      <Component {...restProps}>{renderedChildren}</Component>
+    <NodeWrapper node={node} isDraggable={!isRoot} isRoot={isRoot}>
+      <Component {...restProps} isRoot={isRoot}>
+        {renderedChildren}
+      </Component>
     </NodeWrapper>
   );
 }

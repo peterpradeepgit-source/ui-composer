@@ -20,6 +20,10 @@ export function applyChange(
   history: HistoryState,
   newState: BuilderNode,
 ): HistoryState {
+  if (history.present === newState) {
+    return history;
+  }
+
   return {
     past: [...history.past, history.present].slice(-MAX_HISTORY_LENGTH), // Keep only the last N states to limit memory usage
     present: newState,

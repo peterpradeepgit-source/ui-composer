@@ -3,33 +3,76 @@ import { componentMeta } from "../core/componentMeta";
 import { findNode } from "../core/tree";
 import PropertyField from "./propertyField";
 
-export function PropertyPanel() {
+type PropertyPanelProps = {
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+export function PropertyPanel({ isOpen, onToggle }: PropertyPanelProps) {
   const { history, selectedId, updateNodeProperty } = useBuilder();
+
+  if (!isOpen) {
+    return (
+      <aside className="side-rail side-rail-right">
+        <button type="button" className="rail-button" onClick={onToggle}>
+          Show Properties
+        </button>
+      </aside>
+    );
+  }
+
   if (!selectedId) {
     return (
-      <div className="property-panel">
+      <aside className="property-panel">
+        <div className="side-panel-header">
+          <h3>Properties</h3>
+          <button type="button" className="panel-toggle-button" onClick={onToggle}>
+            {">>"}
+          </button>
+        </div>
         Select a component to edit its properties
-      </div>
+      </aside>
     );
   }
   const selectedNode = findNode(history.present, selectedId);
 
   if (!selectedNode) {
-    return <div className="property-panel">Selected component not found</div>;
+    return (
+      <aside className="property-panel">
+        <div className="side-panel-header">
+          <h3>Properties</h3>
+          <button type="button" className="panel-toggle-button" onClick={onToggle}>
+            {">>"}
+          </button>
+        </div>
+        Selected component not found
+      </aside>
+    );
   }
   const meta = componentMeta.find((m) => m.type === selectedNode.type);
 
   if (!meta) {
     return (
-      <div className="property-panel">
+      <aside className="property-panel">
+        <div className="side-panel-header">
+          <h3>Properties</h3>
+          <button type="button" className="panel-toggle-button" onClick={onToggle}>
+            {">>"}
+          </button>
+        </div>
         No metadata found for component type: {selectedNode.type}
-      </div>
+      </aside>
     );
   }
 
   return (
-    <div className="property-panel">
-      <h3>{meta?.label} Properties</h3>
+    <aside className="property-panel">
+      <div className="side-panel-header">
+        <h3>{meta?.label} Properties</h3>
+        <button type="button" className="panel-toggle-button" onClick={onToggle}>
+          {">>"}
+        </button>
+      </div>
       {/* Render property editors based on meta */}
       {meta?.properties?.map((prop) => (
         <div key={prop.name} className="property-editor">
@@ -45,6 +88,6 @@ export function PropertyPanel() {
           />
         </div>
       ))}
-    </div>
+    </aside>
   );
 }

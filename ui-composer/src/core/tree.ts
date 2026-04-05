@@ -1,5 +1,21 @@
 import type { BuilderNode, NodeProps } from "./types";
 
+export type InsertPosition = "before" | "after" | "inside" | "left" | "right";
+
+function normalizeInsertPosition(
+  position: InsertPosition,
+): "before" | "after" | "inside" {
+  if (position === "left") {
+    return "before";
+  }
+
+  if (position === "right") {
+    return "after";
+  }
+
+  return position;
+}
+
 export function findNode(node: BuilderNode, id: string): BuilderNode | null {
   if (node.id === id) {
     return node;
@@ -208,8 +224,10 @@ export function moveNode(
   root: BuilderNode,
   draggedId: string,
   targetId: string,
-  position: "before" | "after" | "inside",
+  position: InsertPosition,
 ): BuilderNode {
+  const normalizedPosition = normalizeInsertPosition(position);
+
   if (draggedId === targetId || root.id === draggedId) {
     return root;
   }
@@ -223,11 +241,11 @@ export function moveNode(
     throw new Error("Dragged node not found");
   }
 
-  if (position === "inside") {
+  if (normalizedPosition === "inside") {
     return insertNode(removal.tree, targetId, removal.removedNode);
   }
 
-  if (position === "before") {
+  if (normalizedPosition === "before") {
     return insertBefore(removal.tree, targetId, removal.removedNode);
   }
 

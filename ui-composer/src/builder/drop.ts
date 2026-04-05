@@ -1,9 +1,23 @@
 import { nanoid } from "nanoid";
 import { componentMeta } from "../core/componentMeta.ts";
-import { insertAfter, insertBefore, insertNode, moveNode } from "../core/tree.ts";
+import {
+  findNode,
+  findParentId,
+  insertAfter,
+  insertBefore,
+  insertNode,
+  moveNode,
+  updateNodeRecursive,
+} from "../core/tree.ts";
 import type { BuilderNode } from "../core/types";
 
-export type DropPosition = "before" | "after" | "inside" | null;
+export type DropPosition =
+  | "before"
+  | "after"
+  | "inside"
+  | "left"
+  | "right"
+  | null;
 
 export type DropPayload = {
   componentType?: string;
@@ -15,6 +29,7 @@ type ApplyDropArgs = {
   targetNode: BuilderNode;
   dropPosition: DropPosition;
   canDropInside: boolean;
+  allowSiblingDrop?: boolean;
   payload: DropPayload;
 };
 
@@ -29,16 +44,76 @@ function createNode(componentType: string): BuilderNode {
   };
 }
 
-export function getDropPosition(
-  offsetY: number,
-  height: number,
-  canDropInside: boolean,
-): DropPosition {
-  if (offsetY < height * 0.25) {
+function normalizeDropPosition(
+  position: Exclude<DropPosition, null>,
+): "before" | "after" | "inside" {
+  if (position === "left") {
     return "before";
   }
 
-  if (offsetY > height * 0.75) {
+  if (position === "right") {
+    return "after";
+  }
+
+  return position;
+}
+
+function ensureHorizontalSiblingLayout(
+  tree: BuilderNode,
+  targetNode: BuilderNode,
+  dropPosition: DropPosition,
+): BuilderNode {
+  if (dropPosition !== "left" && dropPosition !== "right") {
+    return tree;
+  }
+
+  const parentId = findParentId(tree, targetNode.id);
+  if (!parentId) {
+    return tree;
+  }
+
+  const parentNode = findNode(tree, parentId);
+  if (!parentNode || parentNode.type !== "Container") {
+    return tree;
+  }
+
+  if (parentNode.props.direction === "row") {
+    return tree;
+  }
+
+  return updateNodeRecursive(tree, parentId, { direction: "row" });
+}
+
+export function getDropPosition(
+  offsetX: number,
+  offsetY: number,
+  width: number,
+  height: number,
+  canDropInside: boolean,
+  allowSiblingDrop: boolean = true,
+  allowHorizontalSiblingDrop: boolean = true,
+): DropPosition {
+  if (!allowSiblingDrop) {
+    return canDropInside ? "inside" : null;
+  }
+
+  const edgeInset = Math.min(Math.max(height * 0.35, 18), 48);
+
+  if (allowHorizontalSiblingDrop && width > 120) {
+    if (offsetX < width * 0.2) {
+      return "left";
+    }
+
+    if (offsetX > width * 0.8) {
+      return "right";
+    }
+  }
+
+  if (offsetY <= edgeInset) {
+    return "before";
+  }
+
+  if (offsetY >= height - edgeInset) {
     return "after";
   }
 
@@ -50,39 +125,46 @@ export function applyDrop({
   targetNode,
   dropPosition,
   canDropInside,
+  allowSiblingDrop = true,
   payload,
 }: ApplyDropArgs): BuilderNode {
   const { componentType, draggedNodeId } = payload;
+  const preparedTree = ensureHorizontalSiblingLayout(tree, targetNode, dropPosition);
+  const insertionPosition = dropPosition ? normalizeDropPosition(dropPosition) : null;
 
   if (!componentType && !draggedNodeId) {
     return tree;
   }
 
-  if (!dropPosition) {
+  if (!insertionPosition) {
     return tree;
   }
 
-  let nextTree = tree;
-
-  if (componentType) {
-    if (dropPosition === "inside" && !canDropInside) {
-      return tree;
-    }
-
-    const newNode = createNode(componentType);
-
-    if (dropPosition === "inside") {
-      nextTree = insertNode(nextTree, targetNode.id, newNode);
-    } else if (dropPosition === "before") {
-      nextTree = insertBefore(nextTree, targetNode.id, newNode);
-    } else {
-      nextTree = insertAfter(nextTree, targetNode.id, newNode);
-    }
+  if (!allowSiblingDrop && insertionPosition !== "inside") {
+    return tree;
   }
 
-  if (draggedNodeId && draggedNodeId !== targetNode.id) {
-    nextTree = moveNode(nextTree, draggedNodeId, targetNode.id, dropPosition);
+  if (draggedNodeId) {
+    return moveNode(preparedTree, draggedNodeId, targetNode.id, insertionPosition);
   }
 
-  return nextTree;
+  if (!componentType) {
+    return tree;
+  }
+
+  if (insertionPosition === "inside" && !canDropInside) {
+    return tree;
+  }
+
+  const newNode = createNode(componentType);
+
+  if (insertionPosition === "inside") {
+    return insertNode(preparedTree, targetNode.id, newNode);
+  }
+
+  if (insertionPosition === "before") {
+    return insertBefore(preparedTree, targetNode.id, newNode);
+  }
+
+  return insertAfter(preparedTree, targetNode.id, newNode);
 }
