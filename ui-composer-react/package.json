@@ -1,5 +1,5 @@
 {
-  "name": "ui-composer",
+  "name": "ui-composer-react",
   "version": "1.0.0",
   "description": "A React visual UI composer with drag-and-drop layout editing, built-in components, and runtime component registration.",
   "type": "module",
