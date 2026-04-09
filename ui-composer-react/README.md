@@ -1,4 +1,4 @@
-# ui-composer
+# ui-composer-react
 
 `ui-composer` is a React UI builder for composing component trees visually with drag-and-drop, inline property editing, undo/redo history, and runtime component registration.
 
