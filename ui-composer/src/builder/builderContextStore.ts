@@ -8,6 +8,8 @@ export type BuilderContextType = {
   setSelectedId: (id: string | null) => void;
   applyTreeChange: (nextTree: BuilderNode) => void;
   updateNodeProperty: (nodeId: string, newProps: NodeProps) => void;
+  replaceNodeProperties: (nodeId: string, nextProps: NodeProps) => void;
+  clearCanvas: () => void;
   undo: () => void;
   redo: () => void;
 };

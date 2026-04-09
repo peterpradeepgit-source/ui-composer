@@ -5,6 +5,7 @@ import {
   insertBefore,
   insertNode,
   moveNode,
+  replaceNodePropsRecursive,
   removeNode,
   updateNodeRecursive,
 } from "./tree.ts";
@@ -133,4 +134,13 @@ test("updateNodeRecursive updates only the targeted node", () => {
   assert.equal(result.children[0].children[0].props.text, "updated");
   assert.equal(tree.children[0].children[0].props.text, "child");
   assert.strictEqual(result.children[1], tree.children[1]);
+});
+
+test("replaceNodePropsRecursive replaces the entire prop object for a node", () => {
+  const tree = createTree();
+
+  const result = replaceNodePropsRecursive(tree, "a-1", { text: "replaced" });
+
+  assert.deepEqual(result.children[0].children[0].props, { text: "replaced" });
+  assert.deepEqual(tree.children[0].children[0].props, { text: "child" });
 });

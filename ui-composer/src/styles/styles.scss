@@ -55,11 +55,118 @@
 }
 
 .component-palette {
-    width: 200px;
+    width: 300px;
     padding: 10px;
     border-right: 1px solid #ddd;
     overflow: auto;
     flex-shrink: 0;
+}
+
+.importer-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.importer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    color: #1f2933;
+    cursor: pointer;
+    text-align: left;
+}
+
+.importer-toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: #52606d;
+    transition: transform 0.18s ease;
+}
+
+.importer-toggle-icon-expanded {
+    transform: rotate(180deg);
+}
+
+.importer-card h4,
+.importer-card p {
+    margin: 0;
+}
+
+.importer-help {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.importer-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: #333;
+}
+
+.importer-field input,
+.importer-field textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #cfcfcf;
+    border-radius: 6px;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+.importer-field textarea {
+    min-height: 84px;
+    resize: vertical;
+}
+
+.importer-snippet {
+    min-height: 180px !important;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+}
+
+.importer-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #333;
+}
+
+.importer-button {
+    width: 100%;
+}
+
+.importer-message,
+.importer-error {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.importer-message {
+    color: #1f6d2f;
+}
+
+.importer-error {
+    color: #a12d2d;
 }
 
 .side-panel-header {
@@ -107,11 +214,23 @@
 }
 
 .component-item {
-    padding: 5px;
-    margin-bottom: 5px;
+    padding: 8px;
+    margin-bottom: 8px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: grab;
+    background: #fff;
+}
+
+.component-item-label {
+    font-weight: 600;
+}
+
+.component-item-meta {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #666;
+    word-break: break-word;
 }
 
 .canvas {

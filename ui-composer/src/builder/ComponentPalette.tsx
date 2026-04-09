@@ -1,4 +1,5 @@
-import { componentMeta } from "../core/componentMeta";
+import { useRegisteredComponents } from "../core/registy";
+import { ExternalComponentImporter } from "./ExternalComponentImporter";
 
 type ComponentPaletteProps = {
   isOpen: boolean;
@@ -6,6 +7,8 @@ type ComponentPaletteProps = {
 };
 
 export function ComponentPalette({ isOpen, onToggle }: ComponentPaletteProps) {
+  const registeredComponents = useRegisteredComponents();
+
   if (!isOpen) {
     return (
       <aside className="side-rail">
@@ -24,7 +27,8 @@ export function ComponentPalette({ isOpen, onToggle }: ComponentPaletteProps) {
           {"<<"}
         </button>
       </div>
-      {componentMeta.map((comp) => (
+      <ExternalComponentImporter />
+      {registeredComponents.map((comp) => (
         <div
           key={comp.type}
           className="component-item"
@@ -33,7 +37,10 @@ export function ComponentPalette({ isOpen, onToggle }: ComponentPaletteProps) {
             e.dataTransfer.setData("component-type", comp.type);
           }}
         >
-          {comp.label}
+          <div className="component-item-label">{comp.label}</div>
+          {comp.source === "external" ? (
+            <div className="component-item-meta">{comp.importPath}</div>
+          ) : null}
         </div>
       ))}
     </aside>

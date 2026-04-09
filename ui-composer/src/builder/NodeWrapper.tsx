@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { BuilderNode } from "../core/types";
-import { componentRules } from "../core/componentRules";
+import { canComponentHaveChildren } from "../core/registy";
 import { applyDrop, getDropPosition } from "./drop.ts";
 import { useBuilder } from "./useBuilder";
 
@@ -24,7 +24,7 @@ export function NodeWrapper({
   const [dropPosition, setDropPosition] = useState<
     "before" | "after" | "inside" | "left" | "right" | null
   >(null);
-  const canDrop = componentRules[node.type]?.canHaveChildren;
+  const canDrop = canComponentHaveChildren(node.type);
 
   const indicatorStyle =
     dropPosition === "before"

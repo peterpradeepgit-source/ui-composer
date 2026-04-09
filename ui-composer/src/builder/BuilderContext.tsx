@@ -7,7 +7,7 @@ import {
   undo as undoHistory,
 } from "../core/history";
 import type { BuilderNode, NodeProps } from "../core/types";
-import { updateNodeRecursive } from "../core/tree";
+import { replaceNodePropsRecursive, updateNodeRecursive } from "../core/tree";
 import { BuilderContext } from "./builderContextStore";
 
 export const BuilderProvider = ({
@@ -33,6 +33,29 @@ export const BuilderProvider = ({
     });
   }, []);
 
+  const replaceNodeProperties = useCallback((nodeId: string, nextProps: NodeProps) => {
+    setHistory((currentHistory) => {
+      const newTree = replaceNodePropsRecursive(
+        currentHistory.present,
+        nodeId,
+        nextProps,
+      );
+      return applyChange(currentHistory, newTree);
+    });
+  }, []);
+
+  const clearCanvas = useCallback(() => {
+    setHistory((currentHistory) => {
+      const clearedTree: BuilderNode = {
+        ...currentHistory.present,
+        children: [],
+      };
+
+      return applyChange(currentHistory, clearedTree);
+    });
+    setSelectedId("root");
+  }, []);
+
   const undo = useCallback(() => {
     setHistory((currentHistory) => undoHistory(currentHistory));
   }, []);
@@ -48,10 +71,21 @@ export const BuilderProvider = ({
       setSelectedId,
       applyTreeChange,
       updateNodeProperty,
+      replaceNodeProperties,
+      clearCanvas,
       undo,
       redo,
     }),
-    [history, selectedId, applyTreeChange, updateNodeProperty, undo, redo],
+    [
+      history,
+      selectedId,
+      applyTreeChange,
+      updateNodeProperty,
+      replaceNodeProperties,
+      clearCanvas,
+      undo,
+      redo,
+    ],
   );
 
   return (

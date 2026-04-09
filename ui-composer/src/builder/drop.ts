@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { componentMeta } from "../core/componentMeta.ts";
+import { getComponentMeta } from "../core/registy.ts";
 import {
   findNode,
   findParentId,
@@ -34,7 +34,7 @@ type ApplyDropArgs = {
 };
 
 function createNode(componentType: string): BuilderNode {
-  const meta = componentMeta.find((item) => item.type === componentType);
+  const meta = getComponentMeta(componentType);
 
   return {
     id: nanoid(),

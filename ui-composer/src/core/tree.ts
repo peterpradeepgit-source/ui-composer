@@ -285,3 +285,29 @@ export function updateNodeRecursive(
 
   return changed ? { ...node, children } : node;
 }
+
+export function replaceNodePropsRecursive(
+  node: BuilderNode,
+  nodeId: string,
+  nextProps: NodeProps,
+): BuilderNode {
+  if (node.id === nodeId) {
+    return { ...node, props: nextProps };
+  }
+
+  if (node.children.length === 0) {
+    return node;
+  }
+
+  let changed = false;
+  const children = node.children.map((child) => {
+    const updatedChild = replaceNodePropsRecursive(child, nodeId, nextProps);
+    if (updatedChild !== child) {
+      changed = true;
+    }
+
+    return updatedChild;
+  });
+
+  return changed ? { ...node, children } : node;
+}

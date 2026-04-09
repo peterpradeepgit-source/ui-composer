@@ -1,6 +1,7 @@
 import { useBuilder } from "../builder/useBuilder";
-import { componentMeta } from "../core/componentMeta";
+import { getComponentMeta } from "../core/registy";
 import { findNode } from "../core/tree";
+import type { NodeProps } from "../core/types";
 import PropertyField from "./propertyField";
 
 type PropertyPanelProps = {
@@ -9,7 +10,7 @@ type PropertyPanelProps = {
 };
 
 export function PropertyPanel({ isOpen, onToggle }: PropertyPanelProps) {
-  const { history, selectedId, updateNodeProperty } = useBuilder();
+  const { history, selectedId, updateNodeProperty, replaceNodeProperties } = useBuilder();
 
   if (!isOpen) {
     return (
@@ -49,7 +50,7 @@ export function PropertyPanel({ isOpen, onToggle }: PropertyPanelProps) {
       </aside>
     );
   }
-  const meta = componentMeta.find((m) => m.type === selectedNode.type);
+  const meta = getComponentMeta(selectedNode.type);
 
   if (!meta) {
     return (
@@ -88,6 +89,25 @@ export function PropertyPanel({ isOpen, onToggle }: PropertyPanelProps) {
           />
         </div>
       ))}
+      <div className="property-editor">
+        <label>All Props (JSON)</label>
+        <PropertyField
+          schema={{ name: "__allProps", label: "All Props", type: "json" }}
+          value={selectedNode.props}
+          onChange={(newValue) => {
+            if (
+              typeof newValue === "object" &&
+              newValue !== null &&
+              !Array.isArray(newValue)
+            ) {
+              replaceNodeProperties(
+                selectedNode.id,
+                newValue as NodeProps,
+              );
+            }
+          }}
+        />
+      </div>
     </aside>
   );
 }

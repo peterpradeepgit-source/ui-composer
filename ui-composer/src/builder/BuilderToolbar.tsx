@@ -9,7 +9,7 @@ export function BuilderToolbar({
   isPropertiesOpen,
   onToggleProperties,
 }: BuilderToolbarProps) {
-  const { history, undo, redo } = useBuilder();
+  const { history, undo, redo, clearCanvas } = useBuilder();
 
   return (
     <div className="builder-toolbar">
@@ -28,6 +28,14 @@ export function BuilderToolbar({
         disabled={history.future.length === 0}
       >
         Redo
+      </button>
+      <button
+        type="button"
+        className="toolbar-button"
+        onClick={clearCanvas}
+        disabled={history.present.children.length === 0}
+      >
+        Clear
       </button>
       <button
         type="button"
