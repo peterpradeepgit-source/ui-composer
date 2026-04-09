@@ -26,6 +26,8 @@ import { Text } from "../components/Text.tsx";
 import { defaultComponentMeta } from "./componentMeta.ts";
 import { registerComponent } from "./registy.ts";
 
+let defaultsRegistered = false;
+
 export function registerDefaults() {
   const metaByType = Object.fromEntries(
     defaultComponentMeta.map((meta) => [meta.type, meta]),
@@ -188,4 +190,14 @@ export function registerDefaults() {
     importPath: "@/components/CommonLibrary",
     exportName: "Tooltip",
   });
+
+  defaultsRegistered = true;
+}
+
+export function ensureDefaultComponentsRegistered() {
+  if (defaultsRegistered) {
+    return;
+  }
+
+  registerDefaults();
 }

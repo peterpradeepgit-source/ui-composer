@@ -1,73 +1,202 @@
-# React + TypeScript + Vite
+# ui-composer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+`ui-composer` is a React UI builder for composing component trees visually with drag-and-drop, inline property editing, undo/redo history, and runtime component registration.
 
-Currently, two official plugins are available:
+It is designed for teams that want a ready-made editor shell but still need enough low-level access to control layout data, registered components, and embedding behavior.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Highlights
 
-## React Compiler
+- Drag-and-drop canvas for nested component trees
+- Built-in property panel for editing component props
+- Undo and redo history
+- Runtime component registration for custom components
+- Starter component library included out of the box
+- TypeScript declarations, ESM, CJS, and packaged CSS
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Install
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install ui-composer react react-dom
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`react` and `react-dom` are peer dependencies and must be installed in the consuming app.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Quick Start
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```tsx
+import { UIComposer, createEmptyLayout } from "ui-composer";
+import "ui-composer/styles.css";
+
+const initialLayout = createEmptyLayout({
+  minHeight: "720px",
+  backgroundColor: "#f8fafc",
+});
+
+export function App() {
+  return <UIComposer initialLayout={initialLayout} />;
+}
 ```
+
+The composer fills the space of its container, so in a real app you should render it inside a wrapper with a defined height.
+
+```tsx
+export function Screen() {
+  return (
+    <div style={{ height: "100vh" }}>
+      <UIComposer />
+    </div>
+  );
+}
+```
+
+## Included By Default
+
+The package auto-registers a starter component set when you use `UIComposer`.
+
+- `Container`
+- `Text`
+- `Button`
+- `Box`
+- `Card`
+- `Input`
+- `Select`
+- `Dropdown`
+- `TextArea`
+- `Checkbox`
+- `Radio`
+- `Switch`
+- `Toggle`
+- `Dialog`
+- `Tooltip`
+- `Table`
+- `DataTable`
+- `Accordion`
+- `Form`
+- `Menu`
+- `List`
+- `Tab`
+- `Toolbar`
+
+If you want full control over registration, you can disable the automatic behavior with `autoRegisterDefaults={false}` and register components yourself.
+
+## `UIComposer` Props
+
+```tsx
+type UIComposerProps = {
+  initialLayout?: BuilderNode;
+  autoRegisterDefaults?: boolean;
+  restoreRuntimeRegistrations?: boolean;
+  initialPaletteOpen?: boolean;
+  initialPropertiesOpen?: boolean;
+  className?: string;
+  style?: CSSProperties;
+};
+```
+
+- `initialLayout`: initial tree shown in the canvas
+- `autoRegisterDefaults`: registers the built-in component library on mount
+- `restoreRuntimeRegistrations`: restores previously saved runtime registrations from local storage
+- `initialPaletteOpen`: controls the initial open state of the left panel
+- `initialPropertiesOpen`: controls the initial open state of the right panel
+- `className` and `style`: let you control the outer composer container
+
+## Creating A Layout
+
+Use `createEmptyLayout` to create a root container quickly:
+
+```tsx
+import { createEmptyLayout } from "ui-composer";
+
+const layout = createEmptyLayout({
+  minHeight: "640px",
+  padding: "24px",
+  backgroundColor: "#ffffff",
+});
+```
+
+You can also build the tree yourself:
+
+```ts
+const layout = {
+  id: "root",
+  type: "Container",
+  props: {
+    minHeight: "640px",
+    display: "flex",
+    gap: "12px",
+  },
+  children: [],
+};
+```
+
+## Registering Custom Components
+
+You can register custom React components at runtime:
+
+```tsx
+import { registerExternalComponents } from "ui-composer";
+
+await registerExternalComponents({
+  modulePath: "/src/components/custom.tsx",
+  namespace: "custom",
+  defaultProps: {
+    title: "Hello",
+    tone: "info",
+  },
+});
+```
+
+For more manual control, you can use `registerComponent` directly.
+
+## Public API
+
+The main exports are:
+
+- `UIComposer`
+- `createEmptyLayout`
+- `registerDefaults`
+- `ensureDefaultComponentsRegistered`
+- `registerComponent`
+- `registerExternalComponents`
+- `getRegisteredComponents`
+- `getComponentMeta`
+- `BuilderProvider`
+- `Canvas`
+- `ComponentPalette`
+- `BuilderToolbar`
+- `HistoryShortcuts`
+- `useBuilder`
+
+The package also exports the built-in components, layout/history helpers, and related types.
+
+## Styling
+
+Import the packaged stylesheet once in your app:
+
+```tsx
+import "ui-composer/styles.css";
+```
+
+The distributed stylesheet covers the editor shell and built-in components. If you want app-level resets or page-level styles, keep those in your own application rather than relying on the package.
+
+## Package Output
+
+The published package includes:
+
+- ESM build
+- CommonJS build
+- TypeScript declaration files
+- packaged CSS at `ui-composer/styles.css`
+
+## Local Development
+
+```bash
+npm run dev
+npm test
+npm run lint
+npm run build
+```
+
+## License
+
+MIT
