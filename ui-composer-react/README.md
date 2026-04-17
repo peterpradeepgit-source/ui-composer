@@ -151,13 +151,13 @@ For more manual control, you can use `registerComponent` directly.
 
 ## Exporting Your Design
 
-When your design is ready, you have two export paths.
+When your design is ready, use the `Export` button in the top toolbar. It opens an export panel with three paths.
 
 Use `Export TSX` for the fastest, most compact TypeScript export. It downloads a single component file, such as `GeneratedDesign.tsx`, with the imports and JSX needed to render the current canvas design in any React project.
 
 Use `Export JSX` when you want the same compact single-file export for a JavaScript React project. It downloads `GeneratedDesign.jsx`.
 
-Use `Export Project` when you want a complete runnable starter app. The browser will ask you to choose or create a folder, then `ui-composer-react` writes a Vite React project into that folder.
+Use `Runnable app` when you want a complete starter project. The browser will ask you to choose or create a folder, then `ui-composer-react` writes a Vite React project into that folder.
 
 The full project export includes:
 
@@ -178,6 +178,12 @@ npm run dev
 
 Directory export uses the browser File System Access API, so it works best in Chromium-based browsers such as Chrome and Edge. If the design uses runtime-registered external components, make sure those component import paths are available inside the exported project.
 
+## Saving And Loading Designs
+
+Use `Save JSON` to download the current builder tree as a portable design file. Use `Load JSON` to bring that design back into the editor later.
+
+Export and save actions are disabled until the canvas contains at least one component. This avoids accidental empty exports.
+
 ## Public API
 
 The main exports are:
@@ -190,6 +196,10 @@ The main exports are:
 - `registerExternalComponents`
 - `getRegisteredComponents`
 - `getComponentMeta`
+- `generateComponentFile`
+- `generateProjectFiles`
+- `serializeDesign`
+- `parseDesignJson`
 - `BuilderProvider`
 - `Canvas`
 - `ComponentPalette`

@@ -77,6 +77,14 @@ export {
 } from "./core/tree";
 export { createEmptyLayout } from "./createEmptyLayout";
 export {
+  createDesignJsonFile,
+  downloadDesignJson,
+  isBuilderNode,
+  parseDesignJson,
+  readDesignJsonFromUserFile,
+  serializeDesign,
+} from "./export/designJson";
+export {
   downloadComponentFile,
   exportProjectToDirectory,
   generateComponentFile,
@@ -98,4 +106,5 @@ export type {
   GeneratedProjectFile,
   GenerateProjectOptions,
 } from "./export/exportProject";
+export type { DesignJsonFile } from "./export/designJson";
 export type { PropertyScehema, PropertyType } from "./editor/propertyTypes";

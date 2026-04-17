@@ -9,6 +9,7 @@ export type BuilderContextType = {
   applyTreeChange: (nextTree: BuilderNode) => void;
   updateNodeProperty: (nodeId: string, newProps: NodeProps) => void;
   replaceNodeProperties: (nodeId: string, nextProps: NodeProps) => void;
+  replaceTree: (nextTree: BuilderNode) => void;
   clearCanvas: () => void;
   undo: () => void;
   redo: () => void;

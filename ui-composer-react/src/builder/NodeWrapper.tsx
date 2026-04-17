@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { CSSProperties } from "react";
 import type { BuilderNode } from "../core/types";
 import { canComponentHaveChildren } from "../core/registy";
 import { applyDrop, getDropPosition } from "./drop.ts";
@@ -25,6 +26,16 @@ export function NodeWrapper({
     "before" | "after" | "inside" | "left" | "right" | null
   >(null);
   const canDrop = canComponentHaveChildren(node.type);
+  const wrapperLayoutStyle: CSSProperties = {
+    width:
+      typeof node.props.width === "string" || typeof node.props.width === "number"
+        ? node.props.width
+        : undefined,
+    alignSelf:
+      typeof node.props.alignSelf === "string"
+        ? node.props.alignSelf as CSSProperties["alignSelf"]
+        : undefined,
+  };
 
   const indicatorStyle =
     dropPosition === "before"
@@ -95,7 +106,7 @@ export function NodeWrapper({
         e.stopPropagation();
         setSelectedId(node.id);
       }}
-      style={indicatorStyle}
+      style={{ ...wrapperLayoutStyle, ...indicatorStyle }}
       data-drop-position={dropPosition ?? undefined}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

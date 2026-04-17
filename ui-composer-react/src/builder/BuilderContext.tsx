@@ -44,6 +44,11 @@ export const BuilderProvider = ({
     });
   }, []);
 
+  const replaceTree = useCallback((nextTree: BuilderNode) => {
+    setHistory((currentHistory) => applyChange(currentHistory, nextTree));
+    setSelectedId(nextTree.id);
+  }, []);
+
   const clearCanvas = useCallback(() => {
     setHistory((currentHistory) => {
       const clearedTree: BuilderNode = {
@@ -72,6 +77,7 @@ export const BuilderProvider = ({
       applyTreeChange,
       updateNodeProperty,
       replaceNodeProperties,
+      replaceTree,
       clearCanvas,
       undo,
       redo,
@@ -82,6 +88,7 @@ export const BuilderProvider = ({
       applyTreeChange,
       updateNodeProperty,
       replaceNodeProperties,
+      replaceTree,
       clearCanvas,
       undo,
       redo,
