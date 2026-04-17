@@ -1,6 +1,6 @@
 # ui-composer-react
 
-`ui-composer` is a React UI builder for composing component trees visually with drag-and-drop, inline property editing, undo/redo history, and runtime component registration.
+`ui-composer-react` is a React UI builder for composing component trees visually with drag-and-drop, inline property editing, undo/redo history, runtime component registration, and runnable project export.
 
 It is designed for teams that want a ready-made editor shell but still need enough low-level access to control layout data, registered components, and embedding behavior.
 
@@ -11,12 +11,13 @@ It is designed for teams that want a ready-made editor shell but still need enou
 - Undo and redo history
 - Runtime component registration for custom components
 - Starter component library included out of the box
+- One-click export to a runnable Vite React project
 - TypeScript declarations, ESM, CJS, and packaged CSS
 
 ## Install
 
 ```bash
-npm install ui-composer react react-dom
+npm install ui-composer-react react react-dom
 ```
 
 `react` and `react-dom` are peer dependencies and must be installed in the consuming app.
@@ -24,8 +25,8 @@ npm install ui-composer react react-dom
 ## Quick Start
 
 ```tsx
-import { UIComposer, createEmptyLayout } from "ui-composer";
-import "ui-composer/styles.css";
+import { UIComposer, createEmptyLayout } from "ui-composer-react";
+import "ui-composer-react/styles.css";
 
 const initialLayout = createEmptyLayout({
   minHeight: "720px",
@@ -105,7 +106,7 @@ type UIComposerProps = {
 Use `createEmptyLayout` to create a root container quickly:
 
 ```tsx
-import { createEmptyLayout } from "ui-composer";
+import { createEmptyLayout } from "ui-composer-react";
 
 const layout = createEmptyLayout({
   minHeight: "640px",
@@ -134,7 +135,7 @@ const layout = {
 You can register custom React components at runtime:
 
 ```tsx
-import { registerExternalComponents } from "ui-composer";
+import { registerExternalComponents } from "ui-composer-react";
 
 await registerExternalComponents({
   modulePath: "/src/components/custom.tsx",
@@ -147,6 +148,35 @@ await registerExternalComponents({
 ```
 
 For more manual control, you can use `registerComponent` directly.
+
+## Exporting Your Design
+
+When your design is ready, you have two export paths.
+
+Use `Export TSX` for the fastest, most compact TypeScript export. It downloads a single component file, such as `GeneratedDesign.tsx`, with the imports and JSX needed to render the current canvas design in any React project.
+
+Use `Export JSX` when you want the same compact single-file export for a JavaScript React project. It downloads `GeneratedDesign.jsx`.
+
+Use `Export Project` when you want a complete runnable starter app. The browser will ask you to choose or create a folder, then `ui-composer-react` writes a Vite React project into that folder.
+
+The full project export includes:
+
+- `package.json`
+- `index.html`
+- `tsconfig.json`
+- `src/main.tsx`
+- `src/App.tsx`
+- `src/styles.css`
+- `README.md`
+
+Run the exported project with:
+
+```bash
+npm install
+npm run dev
+```
+
+Directory export uses the browser File System Access API, so it works best in Chromium-based browsers such as Chrome and Edge. If the design uses runtime-registered external components, make sure those component import paths are available inside the exported project.
 
 ## Public API
 
@@ -174,7 +204,7 @@ The package also exports the built-in components, layout/history helpers, and re
 Import the packaged stylesheet once in your app:
 
 ```tsx
-import "ui-composer/styles.css";
+import "ui-composer-react/styles.css";
 ```
 
 The distributed stylesheet covers the editor shell and built-in components. If you want app-level resets or page-level styles, keep those in your own application rather than relying on the package.
@@ -186,7 +216,7 @@ The published package includes:
 - ESM build
 - CommonJS build
 - TypeScript declaration files
-- packaged CSS at `ui-composer/styles.css`
+- packaged CSS at `ui-composer-react/styles.css`
 
 ## Local Development
 

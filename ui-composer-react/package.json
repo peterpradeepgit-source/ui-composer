@@ -40,7 +40,7 @@
     "build": "node scripts/clean-dist.mjs && vite build && tsc -p tsconfig.build.json && node scripts/fix-dts-extensions.mjs",
     "build:demo": "vite build --mode demo",
     "lint": "eslint .",
-    "test": "node --test --experimental-strip-types --experimental-specifier-resolution=node src/core/*.test.ts src/builder/*.test.ts src/demo/*.test.ts",
+    "test": "node --test --experimental-strip-types --experimental-specifier-resolution=node src/core/*.test.ts src/builder/*.test.ts src/demo/*.test.ts src/export/*.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

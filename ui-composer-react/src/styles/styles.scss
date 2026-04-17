@@ -245,6 +245,7 @@
 
 .builder-toolbar {
     display: flex;
+    align-items: center;
     gap: 10px;
     padding: 12px 20px;
     border-bottom: 1px solid #ddd;
@@ -259,9 +260,28 @@
     cursor: pointer;
 }
 
+.toolbar-button-primary {
+    border-color: #1d4ed8;
+    background: #2563eb;
+    color: #fff;
+}
+
 .toolbar-button:disabled {
     opacity: 0.45;
     cursor: not-allowed;
+}
+
+.toolbar-status {
+    color: #475569;
+    font-size: 13px;
+}
+
+.toolbar-status-success {
+    color: #166534;
+}
+
+.toolbar-status-error {
+    color: #b91c1c;
 }
 
 .button {

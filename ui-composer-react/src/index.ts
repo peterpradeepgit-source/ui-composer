@@ -76,6 +76,13 @@ export {
   replaceNodePropsRecursive,
 } from "./core/tree";
 export { createEmptyLayout } from "./createEmptyLayout";
+export {
+  downloadComponentFile,
+  exportProjectToDirectory,
+  generateComponentFile,
+  generateProjectFiles,
+  writeProjectToDirectory,
+} from "./export/exportProject";
 
 export type { BuilderContextType } from "./builder/builderContextStore";
 export type { ComponentMeta } from "./core/componentMeta";
@@ -86,4 +93,9 @@ export type {
 } from "./core/registy";
 export type { HistoryState } from "./core/history";
 export type { BuilderNode, NodeProps, NodePropValue } from "./core/types";
+export type {
+  GenerateComponentFileOptions,
+  GeneratedProjectFile,
+  GenerateProjectOptions,
+} from "./export/exportProject";
 export type { PropertyScehema, PropertyType } from "./editor/propertyTypes";
