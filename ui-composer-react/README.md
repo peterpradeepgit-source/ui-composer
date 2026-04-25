@@ -4,6 +4,8 @@
 
 It is designed for teams that want a ready-made editor shell but still need enough low-level access to control layout data, registered components, and embedding behavior.
 
+The project is currently in a solid library-ready state: the core editor flow, export paths, TypeScript output, and CI verification are in place. The current focus is stability, documentation polish, and making the package easy to evaluate and ship.
+
 ## Highlights
 
 - Drag-and-drop canvas for nested component trees
@@ -49,6 +51,20 @@ export function Screen() {
   );
 }
 ```
+
+For local evaluation, you can run the included demo app:
+
+```bash
+npm install
+npm run dev
+```
+
+Then open the local Vite URL and try a quick end-to-end flow:
+
+- drag a few components onto the canvas
+- edit props in the right panel
+- save and reload JSON
+- export a TSX component or runnable app
 
 ## Included By Default
 
@@ -178,6 +194,21 @@ npm run dev
 
 Directory export uses the browser File System Access API, so it works best in Chromium-based browsers such as Chrome and Edge. If the design uses runtime-registered external components, make sure those component import paths are available inside the exported project.
 
+## What Feels Done
+
+The package already covers the core workflow expected from a reusable composer library:
+
+- visual nested layout editing
+- built-in component palette
+- property editing
+- undo and redo
+- JSON save and load
+- TSX, JSX, and runnable app export
+- runtime external component registration
+- test, lint, and build verification
+
+That makes this a good pause point if you want to step away and come back later with fresh ideas instead of stretching for filler features.
+
 ## Saving And Loading Designs
 
 Use `Save JSON` to download the current builder tree as a portable design file. Use `Load JSON` to bring that design back into the editor later.
@@ -236,6 +267,8 @@ npm test
 npm run lint
 npm run build
 ```
+
+If you want a quick pre-release sanity check, use the checklist in [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md).
 
 ## License
 
